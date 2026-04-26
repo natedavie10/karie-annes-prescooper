@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Karie Anne's · Pre-Scoop Planner</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  :root {
+    --green: #1D9E75;
+    --green-dark: #0F6E56;
+    --green-light: #E1F5EE;
+    --amber: #BA7517;
+    --amber-light: #FAEEDA;
+    --blue: #185FA5;
+    --blue-light: #E6F1FB;
+    --red: #A32D2D;
+    --red-light: #FCEBEB;
+    --gray-50: #F7F6F3;
+    --gray-100: #EEECEA;
+    --gray-200: #D4D2CC;
+    --gray-400: #8C8A83;
+    --gray-600: #5A5955;
+    --gray-900: #1A1917;
+    --radius: 10px;
+    --radius-sm: 6px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--gray-50);
+    color: var(--gray-900);
+    min-height: 100vh;
+    font-size: 15px;
+  }
+  header {
+    background: #fff;
+    border-bottom: 1px solid var(--gray-100);
+    padding: 0 24px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    height: 58px;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+  .logo-circle {
+    width: 34px; height: 34px; border-radius: 50%;
+    background: var(--green-light);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 17px; flex-shrink: 0;
+  }
+  .logo-text { font-size: 15px; font-weight: 600; }
+  .logo-sub { font-size: 12px; color: var(--gray-400); margin-left: 2px; }
+  .status-dot {
+    margin-left: auto; width: 8px; height: 8px; border-radius: 50%;
+    background: var(--gray-200); transition: background 0.3s;
+  }
+  .status-dot.connected { background: var(--green); }
+  .status-label { font-size: 12px; color: var(--gray-400); }
+  nav {
+    background: #fff;
+    border-bottom: 1px solid var(--gray-100);
+    display: flex;
+    padding: 0 24px;
+    gap: 0;
+  }
+  .nav-btn {
+    padding: 14px 20px;
+    font-size: 14px;
+    font-family: 'DM Sans', sans-serif;
+    background: none; border: none; cursor: pointer;
+    color: var(--gray-400);
+    border-bottom: 2px solid transparent;
+    transition: all 0.15s;
+    font-weight: 500;
+  }
+  .nav-btn:hover { color: var(--gray-900); }
+  .nav-btn.active { color: var(--green); border-bottom-color: var(--green); }
+  main { max-width: 780px; margin: 0 auto; padding: 24px 16px 60px; }
+  .card {
+    background: #fff;
+    border: 1px solid var(--gray-100);
+    border-radius: var(--radius);
+    padding: 20px;
+    margin-bottom: 16px;
+  }
+  .card-title {
+    font-size: 11px; font-weight: 600; letter-spacing: 0.08em;
+    text-transform: uppercase; color: var(--gray-400);
+    margin-bottom: 16px;
+  }
+  .form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(155px, 1fr));
+    gap: 12px;
+  }
+  .field { display: flex; flex-direction: column; gap: 5px; }
+  .field label { font-size: 12px; color: var(--gray-600); font-weight: 500; }
+  input[type="text"], input[type="number"], input[type="date"], select {
+    width: 100%;
+    padding: 9px 12px;
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius-sm);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    color: var(--gray-900);
+    background: #fff;
+    transition: border-color 0.15s;
+    -webkit-appearance: none;
+  }
+  input:focus, select:focus { outline: none; border-color: var(--green); }
+  .btn {
+    padding: 9px 18px;
+    border-radius: var(--radius-sm);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px; font-weight: 500;
+    cursor: pointer; border: 1px solid var(--gray-200);
+    background: #fff; color: var(--gray-900);
+    transition: all 0.12s;
+  }
+  .btn:hover { background: var(--gray-50); }
+  .btn:active { transform: scale(0.98); }
+  .btn-primary { background: var(--green); border-color: var(--green); color: #fff; }
+  .btn-primary:hover { background: var(--green-dark); }
+  .btn-sm { padding: 5px 11px; font-size: 12px; }
+  .btn-icon { background: none; border: none; cursor: pointer; padding: 4px 7px; border-radius: var(--radius-sm); font-size: 14px; color: var(--gray-400); transition: all 0.12s; }
+  .btn-icon:hover { background: var(--gray-100); }
+  .btn-icon.edit:hover { color: var(--blue); background: var(--blue-light); }
+  .btn-icon.del:hover { color: var(--red); background: var(--red-light); }
+  .metric-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 12px; margin-bottom: 16px;
+  }
+  .metric { background: var(--gray-50); border-radius: var(--radius-sm); padding: 14px 16px; }
+  .metric-label { font-size: 11px; color: var(--gray-400); font-weight: 500; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px; }
+  .metric-value { font-size: 24px; font-weight: 600; color: var(--gray-900); }
+  .notice {
+    padding: 12px 16px; border-radius: var(--radius-sm); font-size: 13px;
+    background: var(--green-light); color: var(--green-dark);
+    margin-bottom: 16px; border-left: 3px solid var(--green);
+  }
+  .tag { display: inline-block; padding: 2px 8px; border-radius: 99px; font-size: 11px; font-weight: 500; }
+  .tag-hot { background: #FAECE7; color: #993C1D; }
+  .tag-warm { background: var(--amber-light); color: var(--amber); }
+  .tag-cool { background: var(--blue-light); color: var(--blue); }
+  .tag-cold { background: #EEEDFE; color: #3C3489; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; table-layout: fixed; }
+  th { text-align: left; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--gray-400); padding: 8px 10px; border-bottom: 1px solid var(--gray-100); }
+  td { padding: 10px 10px; border-bottom: 1px solid var(--gray-100); vertical-align: middle; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: var(--gray-50); }
+  .rec-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(165px, 1fr)); gap: 12px; }
+  .rec-card { background: #fff; border: 1px solid var(--gray-100); border-radius: var(--radius); padding: 16px; }
+  .rec-card-title { font-size: 13px; font-weight: 600; margin-bottom: 10px; color: var(--gray-900); }
+  .rec-row { display: flex; justify-content: space-between; align-items: center; padding: 7px 0; border-bottom: 1px solid var(--gray-100); font-size: 13px; }
+  .rec-row:last-child { border-bottom: none; }
+  .rec-qty { font-size: 18px; font-weight: 600; color: var(--green); font-family: 'DM Mono', monospace; }
+  .flavor-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(195px, 1fr)); gap: 10px; }
+  .flavor-row { display: flex; align-items: center; gap: 10px; }
+  .flavor-row label { font-size: 13px; color: var(--gray-600); flex: 1; }
+  .flavor-row input { width: 72px; }
+  .edit-banner {
+    background: var(--blue-light); border: 1px solid #B5D4F4;
+    border-radius: var(--radius); padding: 20px; margin-bottom: 16px;
+  }
+  .edit-banner .card-title { color: var(--blue); }
+  .backup-bar {
+    display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+    background: #fff; border: 1px solid var(--gray-100);
+    border-radius: var(--radius); padding: 14px 20px; margin-bottom: 16px;
+  }
+  .backup-label { font-size: 13px; color: var(--gray-400); flex: 1; min-width: 120px; }
+  .empty { text-align: center; padding: 40px 20px; color: var(--gray-400); font-size: 14px; }
+  .loading { text-align: center; padding: 20px; color: var(--gray-400); font-size: 13px; }
+  @media (max-width: 480px) {
+    main { padding: 16px 12px 60px; }
+    .nav-btn { padding: 12px 14px; font-size: 13px; }
+    .metric-value { font-size: 20px; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <div class="logo-circle">🍧</div>
+  <div>
+    <span class="logo-text">Karie Anne's</span>
+    <span class="logo-sub">Pre-Scoop Planner</span>
+  </div>
+  <div style="margin-left:auto;display:flex;align-items:center;gap:6px;">
+    <div class="status-dot" id="status-dot"></div>
+    <span class="status-label" id="status-label">Connecting...</span>
+  </div>
+</header>
+<nav>
+  <button class="nav-btn active" onclick="showTab('log')">Game log</button>
+  <button class="nav-btn" onclick="showTab('planner')">Pre-scoop planner</button>
+  <button class="nav-btn" onclick="showTab('stats')">Stats</button>
+</nav>
+<main>
+  <div id="tab-log">
+    <div class="backup-bar">
+      <span class="backup-label">Back up your data</span>
+      <button class="btn btn-sm" onclick="exportData()">Export backup (.json)</button>
+      <label class="btn btn-sm" style="cursor:pointer;background:var(--amber-light);border-color:var(--amber);color:#633806;">
+        Import backup <input type="file" accept=".json" onchange="importData(event)" style="display:none;">
+      </label>
+    </div>
+    <div id="edit-banner" style="display:none;" class="edit-banner">
+      <div class="card-title">Editing game</div>
+      <div class="form-grid" style="margin-bottom:14px;" id="edit-form-grid"></div>
+      <div class="card-title" style="margin-top:4px;">Units sold</div>
+      <div class="flavor-grid" id="edit-flavor-grid" style="margin-bottom:14px;"></div>
+      <div style="display:flex;gap:8px;">
+        <button class="btn btn-primary" onclick="saveEdit()">Save changes</button>
+        <button class="btn" onclick="cancelEdit()">Cancel</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Log a game</div>
+      <div class="form-grid" style="margin-bottom:14px;" id="add-form-grid"></div>
+      <div class="card-title">Units sold per item</div>
+      <div class="flavor-grid" id="add-flavor-grid" style="margin-bottom:14px;"></div>
+      <button class="btn btn-primary" onclick="logGame()" id="save-btn">Save game</button>
+    </div>
+    <div class="card">
+      <div class="card-title">Past games (<span id="game-count">0</span>)</div>
+      <div id="games-list"><div class="loading">Loading...</div></div>
+    </div>
+  </div>
+  <div id="tab-planner" style="display:none;">
+    <div class="card">
+      <div class="card-title">Tonight's conditions</div>
+      <div class="form-grid">
+        <div class="field"><label>Expected temp (°F)</label><input type="number" id="p-temp" placeholder="74" oninput="runRec()"></div>
+        <div class="field"><label>Projected attendance</label><input type="number" id="p-att" placeholder="9000" oninput="runRec()"></div>
+        <div class="field"><label>Day of week</label>
+          <select id="p-dow" onchange="runRec()">
+            <option>Monday</option><option>Tuesday</option><option>Wednesday</option>
+            <option>Thursday</option><option>Friday</option><option>Saturday</option><option>Sunday</option>
+          </select>
+        </div>
+        <div class="field"><label>Game time</label>
+          <select id="p-time" onchange="runRec()">
+            <option>Day (before 5pm)</option><option>Evening (5–7pm)</option><option>Night (after 7pm)</option>
+          </select>
+        </div>
+        <div class="field"><label>Sky condition</label>
+          <select id="p-sky" onchange="runRec()">
+            <option>Sunny</option><option>Partly cloudy</option><option>Cloudy</option><option>Overcast</option><option>Rainy</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div id="rec-output"></div>
+  </div>
+  <div id="tab-stats" style="display:none;">
+    <div id="stats-output"><div class="empty">Log some games to see stats.</div></div>
+  </div>
+</main>
+<script>
+const SUPABASE_URL = 'https://wiizuqrnzgvpaeuxwvjr.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_NcoHxs9I3YEe2fkTZqJ04w_6AAA1IyD';
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const ITEMS = [
+  { id: 'bees', name: "Bee's Knees", sizes: ['small','large'] },
+  { id: 'patriot', name: 'Patriot', sizes: ['small','large'] },
+  { id: 'dragon', name: 'Dragon Slayer', sizes: ['small','large'] },
+  { id: 'custard', name: 'Vanilla custard', sizes: ['small','large'] },
+];
+const ITEM_LABELS = ITEMS.flatMap(it => it.sizes.map(sz => ({
+  key: `${it.id}_${sz}`,
+  label: `${it.name} – ${sz.charAt(0).toUpperCase()+sz.slice(1)}`
+})));
+const DAYS = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+const TIMES = ['Day (before 5pm)','Evening (5–7pm)','Night (after 7pm)'];
+const SKIES = ['Sunny','Partly cloudy','Cloudy','Overcast','Rainy'];
+let allGames = [];
+let editingId = null;
+async function init() {
+  try {
+    const { data, error } = await sb.from('games').select('*').order('date', { ascending: false });
+    if (error) throw error;
+    allGames = data || [];
+    setStatus(true);
+    renderGames();
+    renderStats();
+  } catch(e) {
+    setStatus(false);
+    allGames = loadLocal();
+    renderGames();
+  }
+  buildAddForm();
+}
+function setStatus(ok) {
+  document.getElementById('status-dot').className = 'status-dot' + (ok ? ' connected' : '');
+  document.getElementById('status-label').textContent = ok ? 'Connected' : 'Offline';
+}
+function loadLocal() { try { return JSON.parse(localStorage.getItem('ka_games')||'[]'); } catch(e) { return []; } }
+function saveLocal(g) { localStorage.setItem('ka_games', JSON.stringify(g)); }
+function makeFormFields(prefix, g) {
+  g = g || {};
+  const today = new Date().toISOString().split('T')[0];
+  return `
+    <div class="field"><label>Date</label><input type="date" id="${prefix}-date" value="${g.date||today}"></div>
+    <div class="field"><label>Day of week</label><select id="${prefix}-dow">${DAYS.map(d=>`<option${g.dow===d?' selected':''}>${d}</option>`).join('')}</select></div>
+    <div class="field"><label>Temp at game time (°F)</label><input type="number" id="${prefix}-temp" placeholder="72" value="${g.temp||''}"></div>
+    <div class="field"><label>Attendance</label><input type="number" id="${prefix}-att" placeholder="8500" value="${g.att||''}"></div>
+    <div class="field"><label>Projected attendance</label><input type="number" id="${prefix}-proj" placeholder="9000" value="${g.proj_att||''}"></div>
+    <div class="field"><label>Game time</label><select id="${prefix}-time">${TIMES.map(t=>`<option${g.game_time===t?' selected':''}>${t}</option>`).join('')}</select></div>
+    <div class="field"><label>Total sales ($)</label><input type="number" id="${prefix}-sales" placeholder="1200" value="${g.sales||''}"></div>
+    <div class="field"><label>Sky condition</label><select id="${prefix}-sky">${SKIES.map(s=>`<option${g.sky===s?' selected':''}>${s}</option>`).join('')}</select></div>`;
+}
+function makeFlavorFields(prefix, qtys) {
+  qtys = qtys || {};
+  return ITEM_LABELS.map(it => `
+    <div class="flavor-row">
+      <label>${it.label}</label>
+      <input type="number" id="${prefix}-qty-${it.key}" min="0" placeholder="0" value="${qtys[it.key]||''}">
+    </div>`).join('');
+}
+function buildAddForm() {
+  document.getElementById('add-form-grid').innerHTML = makeFormFields('log', null);
+  document.getElementById('add-flavor-grid').innerHTML = makeFlavorFields('log', null);
+  const d = new Date();
+  document.getElementById('log-dow').value = DAYS[d.getDay()===0?6:d.getDay()-1];
+}
+function readForm(prefix) {
+  const date = document.getElementById(`${prefix}-date`).value;
+  const temp = parseFloat(document.getElementById(`${prefix}-temp`).value);
+  const att = parseInt(document.getElementById(`${prefix}-att`).value);
+  if (!date || isNaN(temp) || isNaN(att)) return null;
+  const qtys = {};
+  ITEM_LABELS.forEach(it => { qtys[it.key] = parseInt(document.getElementById(`${prefix}-qty-${it.key}`).value)||0; });
+  return {
+    date, temp, att,
+    proj_att: parseInt(document.getElementById(`${prefix}-proj`).value)||att,
+    dow: document.getElementById(`${prefix}-dow`).value,
+    game_time: document.getElementById(`${prefix}-time`).value,
+    sky: document.getElementById(`${prefix}-sky`).value,
+    sales: parseFloat(document.getElementById(`${prefix}-sales`).value)||0,
+    qtys
+  };
+}
+async function logGame() {
+  const g = readForm('log');
+  if (!g) { alert('Please fill in date, temp, and attendance.'); return; }
+  const btn = document.getElementById('save-btn');
+  btn.textContent = 'Saving...'; btn.disabled = true;
+  try {
+    const { data, error } = await sb.from('games').insert([g]).select();
+    if (error) throw error;
+    allGames.unshift(data[0]);
+  } catch(e) {
+    allGames.unshift({ ...g, id: Date.now().toString() });
+    saveLocal(allGames);
+  }
+  btn.textContent = 'Save game'; btn.disabled = false;
+  renderGames(); runRec(); renderStats();
+  buildAddForm();
+}
+function editGame(id) {
+  editingId = id;
+  const g = allGames.find(x => x.id === id);
+  document.getElementById('edit-form-grid').innerHTML = makeFormFields('edit', g);
+  document.getElementById('edit-flavor-grid').innerHTML = makeFlavorFields('edit', g.qtys);
+  document.getElementById('edit-banner').style.display = 'block';
+  document.getElementById('edit-banner').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+async function saveEdit() {
+  const g = readForm('edit');
+  if (!g) { alert('Please fill in date, temp, and attendance.'); return; }
+  try {
+    const { error } = await sb.from('games').update(g).eq('id', editingId);
+    if (error) throw error;
+  } catch(e) { console.error(e); }
+  const idx = allGames.findIndex(x => x.id === editingId);
+  if (idx > -1) allGames[idx] = { ...allGames[idx], ...g };
+  saveLocal(allGames);
+  cancelEdit();
+  renderGames(); runRec(); renderStats();
+}
+function cancelEdit() {
+  editingId = null;
+  document.getElementById('edit-banner').style.display = 'none';
+}
+async function deleteGame(id) {
+  try {
+    const { error } = await sb.from('games').delete().eq('id', id);
+    if (error) throw error;
+  } catch(e) { console.error(e); }
+  allGames = allGames.filter(x => x.id !== id);
+  saveLocal(allGames);
+  if (editingId === id) cancelEdit();
+  renderGames(); runRec(); renderStats();
+}
+function tempClass(t) { return t>=80?'hot':t>=68?'warm':t>=55?'cool':'cold'; }
+function tempTag(t) { const c=tempClass(t); return `<span class="tag tag-${c}">${c}</span>`; }
+function renderGames() {
+  document.getElementById('game-count').textContent = allGames.length;
+  const el = document.getElementById('games-list');
+  if (!allGames.length) { el.innerHTML = '<div class="empty">No games logged yet. Add your first game above.</div>'; return; }
+  el.innerHTML = `<div style="overflow-x:auto;"><table>
+    <colgroup><col style="width:95px"><col style="width:80px"><col style="width:90px"><col style="width:72px"><col style="width:78px"><col style="width:64px"></colgroup>
+    <thead><tr><th>Date</th><th>Day</th><th>Temp</th><th>Att.</th><th>Sales</th><th></th></tr></thead>
+    <tbody>${allGames.map(g => `<tr>
+      <td style="font-family:'DM Mono',monospace;font-size:12px;">${g.date}</td>
+      <td style="font-size:12px;">${g.dow}</td>
+      <td>${g.temp}°F ${tempTag(g.temp)}</td>
+      <td>${Number(g.att).toLocaleString()}</td>
+      <td>$${Number(g.sales).toLocaleString()}</td>
+      <td><span style="display:flex;gap:4px;">
+        <button class="btn-icon edit" onclick="editGame('${g.id}')">✎</button>
+        <button class="btn-icon del" onclick="deleteGame('${g.id}')">✕</button>
+      </span></td>
+    </tr>`).join('')}</tbody>
+  </table></div>`;
+}
+function getSimilarGames(temp, att, dow, time, sky) {
+  if (!allGames.length) return [];
+  const scored = allGames.map(g => {
+    let score = 0;
+    const tDiff = Math.abs(g.temp - temp);
+    score += tDiff<5?3:tDiff<10?2:tDiff<20?1:0;
+    const aDiff = Math.abs(g.att - att)/(att||1);
+    score += aDiff<0.1?3:aDiff<0.2?2:aDiff<0.35?1:0;
+    if (g.dow===dow) score+=2;
+    const isWE=['Friday','Saturday','Sunday'].includes(dow);
+    const gWE=['Friday','Saturday','Sunday'].includes(g.dow);
+    if (isWE===gWE) score+=1;
+    if (g.game_time===time) score+=1;
+    if (g.sky===sky) score+=1;
+    return { g, score };
+  });
+  scored.sort((a,b)=>b.score-a.score);
+  return scored.slice(0, Math.min(5, scored.length)).map(s=>({game:s.g, score:s.score}));
+}
+function runRec() {
+  const el = document.getElementById('rec-output');
+  if (!el) return;
+  const temp = parseFloat(document.getElementById('p-temp').value);
+  const att = parseInt(document.getElementById('p-att').value);
+  const dow = document.getElementById('p-dow').value;
+  const time = document.getElementById('p-time').value;
+  const sky = document.getElementById('p-sky').value;
+  if (!allGames.length) { el.innerHTML='<div class="notice">Log at least one game to get recommendations.</div>'; return; }
+  if (isNaN(temp)||isNaN(att)) { el.innerHTML='<div class="notice">Enter tonight\'s temperature and attendance above.</div>'; return; }
+  const similar = getSimilarGames(temp, att, dow, time, sky);
+  const totalWeight = similar.reduce((s,x)=>s+x.score,0);
+  const recs = {};
+  ITEM_LABELS.forEach(it => {
+    if (!totalWeight) { recs[it.key]=0; return; }
+    const wtdAvg = similar.reduce((s,x)=>s+((x.game.qtys&&x.game.qtys[it.key])||0)*x.score,0)/totalWeight;
+    const attRatio = att/(similar[0]?.game?.att||att);
+    const tf = temp>=80?1.15:temp>=68?1.0:temp>=55?0.7:0.35;
+    recs[it.key] = Math.round(wtdAvg*Math.min(attRatio,1.4)*tf);
+  });
+  const totalScoops = Object.values(recs).reduce((s,v)=>s+v,0);
+  const confText = similar.length>=3?`Based on ${similar.length} similar games`:similar.length===1?'Based on 1 similar game — log more for better accuracy':`Based on ${similar.length} similar games`;
+  const cards = ITEMS.map(it=>`<div class="rec-card">
+    <div class="rec-card-title">${it.name}</div>
+    ${it.sizes.map(sz=>`<div class="rec-row"><span>${sz.charAt(0).toUpperCase()+sz.slice(1)}</span><span class="rec-qty">${recs[`${it.id}_${sz}`]}</span></div>`).join('')}
+  </div>`).join('');
+  el.innerHTML=`
+    <div class="metric-grid">
+      <div class="metric"><div class="metric-label">Total pre-scoops</div><div class="metric-value">${totalScoops}</div></div>
+      <div class="metric"><div class="metric-label">Temp</div><div class="metric-value" style="font-size:15px;padding-top:6px;">${tempTag(temp)}</div></div>
+      <div class="metric"><div class="metric-label">Similar games</div><div class="metric-value">${similar.length}</div></div>
+    </div>
+    <div class="notice">${confText}. Recommendations improve as you log more games.</div>
+    <div style="font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--gray-400);margin-bottom:12px;">Pre-scoop quantities</div>
+    <div class="rec-grid">${cards}</div>
+    <p style="font-size:12px;color:var(--gray-400);margin-top:14px;">Custom flavor orders made to order. Only pre-scoop the three combos and custard.</p>`;
+}
+function renderStats() {
+  const el = document.getElementById('stats-output');
+  if (!el || !allGames.length) { if(el) el.innerHTML='<div class="empty">Log some games to see stats.</div>'; return; }
+  const avgSales = allGames.reduce((s,g)=>s+g.sales,0)/allGames.length;
+  const bestGame = allGames.reduce((b,g)=>g.sales>b.sales?g:b,allGames[0]);
+  const bestItem = ITEM_LABELS.reduce((best,it)=>{ const tot=allGames.reduce((s,g)=>s+((g.qtys&&g.qtys[it.key])||0),0); return tot>best.tot?{it,tot}:best; },{it:ITEM_LABELS[0],tot:0});
+  el.innerHTML=`
+    <div class="metric-grid">
+      <div class="metric"><div class="metric-label">Games logged</div><div class="metric-value">${allGames.length}</div></div>
+      <div class="metric"><div class="metric-label">Avg sales</div><div class="metric-value">$${Math.round(avgSales).toLocaleString()}</div></div>
+      <div class="metric"><div class="metric-label">Best game</div><div class="metric-value">$${bestGame.sales.toLocaleString()}</div></div>
+      <div class="metric"><div class="metric-label">Top item</div><div class="metric-value" style="font-size:13px;padding-top:6px;">${bestItem.it.label}</div></div>
+    </div>
+    <div class="card">
+      <div class="card-title">All games</div>
+      <div style="overflow-x:auto;"><table>
+        <thead><tr><th>Date</th><th>Day</th><th>Temp</th><th>Att.</th><th>Sales</th><th>Sky</th></tr></thead>
+        <tbody>${allGames.map(g=>`<tr>
+          <td style="font-family:'DM Mono',monospace;font-size:12px;">${g.date}</td>
+          <td style="font-size:12px;">${g.dow}</td>
+          <td>${g.temp}°F ${tempTag(g.temp)}</td>
+          <td>${Number(g.att).toLocaleString()}</td>
+          <td>$${Number(g.sales).toLocaleString()}</td>
+          <td style="font-size:12px;">${g.sky||'—'}</td>
+        </tr>`).join('')}</tbody>
+      </table></div>
+    </div>`;
+}
+function showTab(t) {
+  ['log','planner','stats'].forEach((tab,i)=>{
+    document.getElementById(`tab-${tab}`).style.display=tab===t?'block':'none';
+    document.querySelectorAll('.nav-btn')[i].classList.toggle('active',tab===t);
+  });
+  if(t==='planner') runRec();
+  if(t==='stats') renderStats();
+}
+function exportData() {
+  if (!allGames.length) { alert('No games to export yet.'); return; }
+  const blob = new Blob([JSON.stringify({version:1,exported:new Date().toISOString(),games:allGames},null,2)],{type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `karie-annes-${new Date().toISOString().split('T')[0]}.json`;
+  a.click();
+}
+function importData(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = async ev => {
+    try {
+      const data = JSON.parse(ev.target.result);
+      const incoming = data.games || data;
+      if (!Array.isArray(incoming)) { alert('Invalid file.'); return; }
+      let added = 0;
+      for (const g of incoming) {
+        const dupe = allGames.find(m=>m.date===g.date&&m.temp===g.temp&&m.att===g.att);
+        if (!dupe) {
+          try {
+            const { data: d2 } = await sb.from('games').insert([g]).select();
+            allGames.unshift(d2[0]);
+          } catch { allGames.unshift({...g,id:Date.now().toString()}); }
+          added++;
+        }
+      }
+      saveLocal(allGames);
+      renderGames(); renderStats();
+      alert(`Done! ${added} game(s) imported.`);
+    } catch { alert('Could not read file.'); }
+  };
+  reader.readAsText(file);
+  e.target.value='';
+}
+init();
+</script>
+</body>
+</html>
