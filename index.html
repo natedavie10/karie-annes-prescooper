@@ -83,13 +83,14 @@
   .bar-wrap { background: var(--gray-100); border-radius: 99px; height: 8px; overflow: hidden; min-width: 80px; }
   .bar-fill { height: 100%; border-radius: 99px; background: var(--green); }
   .chart-wrap { position: relative; max-width: 340px; margin: 0 auto; padding: 16px 0; }
+  .pie-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin-bottom: 16px; }
   @media (max-width: 480px) { main { padding: 16px 12px 60px; } .nav-btn { padding: 12px 12px; font-size: 13px; } .metric-value { font-size: 20px; } }
 </style>
 </head>
 <body>
 
 <header>
-  <img class="logo-img" src="logo.png" alt="Karie Anne's Logo">
+  <img class="logo-img" src="Logo.png" alt="Karie Anne's Logo">
   <div>
     <span class="logo-text">Karie Anne's</span>
     <span class="logo-sub">PRE-SCOOP PLANNER</span>
@@ -178,16 +179,18 @@ const ITEMS = [
 const ITEM_LABELS = ITEMS.flatMap(it => it.sizes.map(sz => ({
   key: it.id + '_' + sz,
   label: it.name + ' – ' + sz.charAt(0).toUpperCase() + sz.slice(1),
-  itemId: it.id
+  itemId: it.id, size: sz
 })));
-const PIE_COLORS = ['#F5C800','#1D9E75','#185FA5','#E05B2B','#9B59B6','#E74C3C','#2ECC71','#3498DB'];
+const PIE_COLORS_BY_ITEM = ['#F5C800','#1D9E75','#185FA5','#E05B2B','#9B59B6'];
+const PIE_COLORS_BY_SIZE = ['#F5C800','#F0B800','#1D9E75','#16785A','#185FA5','#0F4070','#E05B2B','#A83D1A','#9B59B6','#6C3483'];
 const DAYS  = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
 const TIMES = ['Day (before 5pm)','Evening (5–7pm)','Night (after 7pm)'];
 const SKIES = ['Sunny','Partly cloudy','Cloudy','Overcast','Rainy'];
 
 let allGames  = [];
 let editingId = null;
-let pieChart  = null;
+let pieChart1 = null;
+let pieChart2 = null;
 
 async function init() {
   try {
@@ -407,13 +410,18 @@ function renderStats() {
   const itemTotals = ITEM_LABELS.map(it => {
     const total = allGames.reduce((s,g)=>s+((g.qtys&&g.qtys[it.key])||0), 0);
     return { ...it, total, avg: total/allGames.length };
-  });
+  }).sort((a,b)=>b.total-a.total);
+
   const grandTotal = itemTotals.reduce((s,it)=>s+it.total, 0);
 
-  const pieData = ITEMS.map((item,i) => {
+  const pieByFlavor = ITEMS.map((item,i) => {
     const total = item.sizes.reduce((s,sz)=>{ const f=itemTotals.find(it=>it.key===item.id+'_'+sz); return s+(f?f.total:0); },0);
-    return { name: item.name, total, color: PIE_COLORS[i] };
+    return { name: item.name, total, color: PIE_COLORS_BY_ITEM[i] };
   }).filter(d=>d.total>0);
+
+  const pieBySize = itemTotals.filter(it=>it.total>0).map((it,i)=>({
+    name: it.label, total: it.total, color: PIE_COLORS_BY_SIZE[i % PIE_COLORS_BY_SIZE.length]
+  }));
 
   el.innerHTML =
     '<div class="metric-grid">' +
@@ -430,8 +438,9 @@ function renderStats() {
           '<td><div style="display:flex;align-items:center;gap:8px;"><div class="bar-wrap" style="flex:1;"><div class="bar-fill" style="width:'+pct+'%;"></div></div><span style="font-size:12px;color:var(--gray-400);width:34px;text-align:right;">'+pct+'%</span></div></td></tr>';
       }).join('') +
       '</tbody></table></div>' +
-    '<div class="card"><div class="card-title">Sales mix — all time</div>' +
-      '<div class="chart-wrap"><canvas id="pie-chart"></canvas></div>' +
+    '<div class="pie-grid">' +
+      '<div class="card"><div class="card-title">Mix by flavor</div><div class="chart-wrap"><canvas id="pie-chart-1"></canvas></div></div>' +
+      '<div class="card"><div class="card-title">Mix by flavor & size</div><div class="chart-wrap"><canvas id="pie-chart-2"></canvas></div></div>' +
     '</div>' +
     '<div class="card"><div class="card-title">All games</div>' +
       '<div style="overflow-x:auto;"><table><thead><tr><th>Date</th><th>Day</th><th>Temp</th><th>Att.</th><th>Sales</th><th>Sky</th></tr></thead><tbody>' +
@@ -446,23 +455,36 @@ function renderStats() {
       '</tbody></table></div></div>';
 
   setTimeout(() => {
-    const ctx = document.getElementById('pie-chart');
-    if (!ctx || !window.Chart) return;
-    if (pieChart) { pieChart.destroy(); pieChart = null; }
-    pieChart = new Chart(ctx, {
-      type: 'doughnut',
-      data: {
-        labels: pieData.map(d=>d.name),
-        datasets: [{ data: pieData.map(d=>d.total), backgroundColor: pieData.map(d=>d.color), borderWidth: 2, borderColor: '#fff' }]
-      },
-      options: {
-        responsive: true,
-        plugins: {
-          legend: { position: 'bottom', labels: { font: { family:'DM Sans', size:12 }, padding:16, boxWidth:12 } },
-          tooltip: { callbacks: { label: ctx => ' '+ctx.label+': '+ctx.raw+' units ('+Math.round(ctx.raw/grandTotal*100)+'%)' } }
-        }
-      }
-    });
+    const ctx1 = document.getElementById('pie-chart-1');
+    if (ctx1 && window.Chart) {
+      if (pieChart1) { pieChart1.destroy(); pieChart1 = null; }
+      pieChart1 = new Chart(ctx1, {
+        type: 'doughnut',
+        data: {
+          labels: pieByFlavor.map(d=>d.name),
+          datasets: [{ data: pieByFlavor.map(d=>d.total), backgroundColor: pieByFlavor.map(d=>d.color), borderWidth: 2, borderColor: '#fff' }]
+        },
+        options: { responsive: true, plugins: {
+          legend: { position: 'bottom', labels: { font: { family:'DM Sans', size:11 }, padding:12, boxWidth:11 } },
+          tooltip: { callbacks: { label: c=>' '+c.label+': '+c.raw+' ('+Math.round(c.raw/grandTotal*100)+'%)' } }
+        }}
+      });
+    }
+    const ctx2 = document.getElementById('pie-chart-2');
+    if (ctx2 && window.Chart) {
+      if (pieChart2) { pieChart2.destroy(); pieChart2 = null; }
+      pieChart2 = new Chart(ctx2, {
+        type: 'doughnut',
+        data: {
+          labels: pieBySize.map(d=>d.name),
+          datasets: [{ data: pieBySize.map(d=>d.total), backgroundColor: pieBySize.map(d=>d.color), borderWidth: 2, borderColor: '#fff' }]
+        },
+        options: { responsive: true, plugins: {
+          legend: { position: 'bottom', labels: { font: { family:'DM Sans', size:11 }, padding:12, boxWidth:11 } },
+          tooltip: { callbacks: { label: c=>' '+c.label+': '+c.raw+' ('+Math.round(c.raw/grandTotal*100)+'%)' } }
+        }}
+      });
+    }
   }, 150);
 }
 
