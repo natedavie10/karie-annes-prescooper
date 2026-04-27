@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Karie Anne's · Pre-Scoop Planner</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
   :root {
     --green: #1D9E75;
@@ -34,9 +34,9 @@
     min-height: 100vh;
     font-size: 15px;
   }
-  header {
-    background: #fff;
-    border-bottom: 1px solid var(--gray-100);
+header {
+    background: #1A1917;
+    border-bottom: 3px solid #F5C800;
     padding: 0 24px;
     display: flex;
     align-items: center;
@@ -185,10 +185,10 @@
 </head>
 <body>
 <header>
-  <div class="logo-circle">🍧</div>
+  <img src="logo.png" alt="Karie Anne's Logo" style="height:52px;width:52px;object-fit:contain;">
   <div>
-    <span class="logo-text">Karie Anne's</span>
-    <span class="logo-sub">Pre-Scoop Planner</span>
+    <div style="font-size:15px;font-weight:600;color:#fff;">Karie Anne's</div>
+    <div style="font-size:11px;color:#F5C800;letter-spacing:0.04em;">PRE-SCOOP PLANNER</div>
   </div>
   <div style="margin-left:auto;display:flex;align-items:center;gap:6px;">
     <div class="status-dot" id="status-dot"></div>
@@ -270,6 +270,7 @@ const ITEMS = [
   { id: 'patriot', name: 'Patriot', sizes: ['small','large'] },
   { id: 'dragon', name: 'Dragon Slayer', sizes: ['small','large'] },
   { id: 'custard', name: 'Vanilla custard', sizes: ['small','large'] },
+  { id: 'custom', name: 'Custom Ice', sizes: ['small','large'], customOnly: true },
 ];
 const ITEM_LABELS = ITEMS.flatMap(it => it.sizes.map(sz => ({
   key: `${it.id}_${sz}`,
