@@ -532,17 +532,22 @@ function importData(e) {
       for (const g of incoming) {
         const dupe = allGames.find(m=>m.date===g.date&&m.temp===g.temp&&m.att===g.att);
         if (!dupe) {
-          try {
-            const { data: d2 } = await sb.from('games').insert([g]).select();
+          const clean = {
+            date: g.date, temp: g.temp, att: g.att,
+            proj_att: g.proj_att || g.projAtt || g.att,
+            dow: g.dow, game_time: g.game_time || g.time,
+            sky: g.sky, sales: g.sales, qtys: g.qtys || {}
+          };
+          const { data: d2, error } = await sb.from('games').insert([clean]).select();
+          if (!error && d2) {
             allGames.unshift(d2[0]);
-          } catch { allGames.unshift({...g,id:Date.now().toString()}); }
+          }
           added++;
         }
       }
-      saveLocal(allGames);
       renderGames(); renderStats();
-      alert(`Done! ${added} game(s) imported.`);
-    } catch { alert('Could not read file.'); }
+      alert(`Done! ${added} game(s) imported to database.`);
+    } catch(err) { alert('Could not read file: ' + err.message); }
   };
   reader.readAsText(file);
   e.target.value='';
