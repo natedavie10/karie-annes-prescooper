@@ -5,122 +5,41 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Karie Anne's · Pre-Scoop Planner</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
   :root {
-    --green: #1D9E75;
-    --green-dark: #0F6E56;
-    --green-light: #E1F5EE;
-    --amber: #BA7517;
-    --amber-light: #FAEEDA;
-    --blue: #185FA5;
-    --blue-light: #E6F1FB;
-    --red: #A32D2D;
-    --red-light: #FCEBEB;
-    --gray-50: #F7F6F3;
-    --gray-100: #EEECEA;
-    --gray-200: #D4D2CC;
-    --gray-400: #8C8A83;
-    --gray-600: #5A5955;
-    --gray-900: #1A1917;
-    --radius: 10px;
-    --radius-sm: 6px;
+    --green: #1D9E75; --green-dark: #0F6E56; --green-light: #E1F5EE;
+    --amber: #BA7517; --amber-light: #FAEEDA;
+    --blue: #185FA5; --blue-light: #E6F1FB;
+    --red: #A32D2D; --red-light: #FCEBEB;
+    --yellow: #F5C800; --dark: #1A1917;
+    --gray-50: #F7F6F3; --gray-100: #EEECEA; --gray-200: #D4D2CC;
+    --gray-400: #8C8A83; --gray-600: #5A5955; --gray-900: #1A1917;
+    --radius: 10px; --radius-sm: 6px;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    font-family: 'DM Sans', sans-serif;
-    background: var(--gray-50);
-    color: var(--gray-900);
-    min-height: 100vh;
-    font-size: 15px;
-  }
-header {
-    background: #1A1917;
-    border-bottom: 3px solid #F5C800;
-    padding: 0 24px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    height: 58px;
-    position: sticky;
-    top: 0;
-    z-index: 10;
-  }
-  .logo-circle {
-    width: 34px; height: 34px; border-radius: 50%;
-    background: var(--green-light);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 17px; flex-shrink: 0;
-  }
-  .logo-text { font-size: 15px; font-weight: 600; }
-  .logo-sub { font-size: 12px; color: var(--gray-400); margin-left: 2px; }
-  .status-dot {
-    margin-left: auto; width: 8px; height: 8px; border-radius: 50%;
-    background: var(--gray-200); transition: background 0.3s;
-  }
+  body { font-family: 'DM Sans', sans-serif; background: var(--gray-50); color: var(--gray-900); min-height: 100vh; font-size: 15px; }
+  header { background: var(--dark); border-bottom: 3px solid var(--yellow); padding: 0 20px; display: flex; align-items: center; gap: 12px; height: 64px; position: sticky; top: 0; z-index: 10; }
+  .logo-img { height: 52px; width: 52px; object-fit: contain; }
+  .logo-text { font-size: 15px; font-weight: 600; color: #fff; }
+  .logo-sub { font-size: 11px; color: var(--yellow); letter-spacing: 0.04em; display: block; }
+  .status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--gray-400); transition: background 0.3s; }
   .status-dot.connected { background: var(--green); }
   .status-label { font-size: 12px; color: var(--gray-400); }
-  nav {
-    background: #fff;
-    border-bottom: 1px solid var(--gray-100);
-    display: flex;
-    padding: 0 24px;
-    gap: 0;
-  }
-  .nav-btn {
-    padding: 14px 20px;
-    font-size: 14px;
-    font-family: 'DM Sans', sans-serif;
-    background: none; border: none; cursor: pointer;
-    color: var(--gray-400);
-    border-bottom: 2px solid transparent;
-    transition: all 0.15s;
-    font-weight: 500;
-  }
-  .nav-btn:hover { color: var(--gray-900); }
-  .nav-btn.active { color: var(--green); border-bottom-color: var(--green); }
-  main { max-width: 780px; margin: 0 auto; padding: 24px 16px 60px; }
-  .card {
-    background: #fff;
-    border: 1px solid var(--gray-100);
-    border-radius: var(--radius);
-    padding: 20px;
-    margin-bottom: 16px;
-  }
-  .card-title {
-    font-size: 11px; font-weight: 600; letter-spacing: 0.08em;
-    text-transform: uppercase; color: var(--gray-400);
-    margin-bottom: 16px;
-  }
-  .form-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(155px, 1fr));
-    gap: 12px;
-  }
+  nav { background: var(--dark); border-bottom: 1px solid #333; display: flex; padding: 0 20px; }
+  .nav-btn { padding: 13px 18px; font-size: 14px; font-family: 'DM Sans', sans-serif; background: none; border: none; cursor: pointer; color: #888; border-bottom: 2px solid transparent; transition: all 0.15s; font-weight: 500; }
+  .nav-btn:hover { color: #fff; }
+  .nav-btn.active { color: var(--yellow); border-bottom-color: var(--yellow); }
+  main { max-width: 820px; margin: 0 auto; padding: 24px 16px 60px; }
+  .card { background: #fff; border: 1px solid var(--gray-100); border-radius: var(--radius); padding: 20px; margin-bottom: 16px; }
+  .card-title { font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--gray-400); margin-bottom: 16px; }
+  .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(155px, 1fr)); gap: 12px; }
   .field { display: flex; flex-direction: column; gap: 5px; }
   .field label { font-size: 12px; color: var(--gray-600); font-weight: 500; }
-  input[type="text"], input[type="number"], input[type="date"], select {
-    width: 100%;
-    padding: 9px 12px;
-    border: 1px solid var(--gray-200);
-    border-radius: var(--radius-sm);
-    font-family: 'DM Sans', sans-serif;
-    font-size: 14px;
-    color: var(--gray-900);
-    background: #fff;
-    transition: border-color 0.15s;
-    -webkit-appearance: none;
-  }
+  input[type="text"], input[type="number"], input[type="date"], select { width: 100%; padding: 9px 12px; border: 1px solid var(--gray-200); border-radius: var(--radius-sm); font-family: 'DM Sans', sans-serif; font-size: 14px; color: var(--gray-900); background: #fff; transition: border-color 0.15s; -webkit-appearance: none; }
   input:focus, select:focus { outline: none; border-color: var(--green); }
-  .btn {
-    padding: 9px 18px;
-    border-radius: var(--radius-sm);
-    font-family: 'DM Sans', sans-serif;
-    font-size: 14px; font-weight: 500;
-    cursor: pointer; border: 1px solid var(--gray-200);
-    background: #fff; color: var(--gray-900);
-    transition: all 0.12s;
-  }
+  .btn { padding: 9px 18px; border-radius: var(--radius-sm); font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 500; cursor: pointer; border: 1px solid var(--gray-200); background: #fff; color: var(--gray-900); transition: all 0.12s; }
   .btn:hover { background: var(--gray-50); }
   .btn:active { transform: scale(0.98); }
   .btn-primary { background: var(--green); border-color: var(--green); color: #fff; }
@@ -130,19 +49,11 @@ header {
   .btn-icon:hover { background: var(--gray-100); }
   .btn-icon.edit:hover { color: var(--blue); background: var(--blue-light); }
   .btn-icon.del:hover { color: var(--red); background: var(--red-light); }
-  .metric-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
-    gap: 12px; margin-bottom: 16px;
-  }
+  .metric-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 12px; margin-bottom: 16px; }
   .metric { background: var(--gray-50); border-radius: var(--radius-sm); padding: 14px 16px; }
   .metric-label { font-size: 11px; color: var(--gray-400); font-weight: 500; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px; }
   .metric-value { font-size: 24px; font-weight: 600; color: var(--gray-900); }
-  .notice {
-    padding: 12px 16px; border-radius: var(--radius-sm); font-size: 13px;
-    background: var(--green-light); color: var(--green-dark);
-    margin-bottom: 16px; border-left: 3px solid var(--green);
-  }
+  .notice { padding: 12px 16px; border-radius: var(--radius-sm); font-size: 13px; background: var(--green-light); color: var(--green-dark); margin-bottom: 16px; border-left: 3px solid var(--green); }
   .tag { display: inline-block; padding: 2px 8px; border-radius: 99px; font-size: 11px; font-weight: 500; }
   .tag-hot { background: #FAECE7; color: #993C1D; }
   .tag-warm { background: var(--amber-light); color: var(--amber); }
@@ -163,43 +74,38 @@ header {
   .flavor-row { display: flex; align-items: center; gap: 10px; }
   .flavor-row label { font-size: 13px; color: var(--gray-600); flex: 1; }
   .flavor-row input { width: 72px; }
-  .edit-banner {
-    background: var(--blue-light); border: 1px solid #B5D4F4;
-    border-radius: var(--radius); padding: 20px; margin-bottom: 16px;
-  }
+  .edit-banner { background: var(--blue-light); border: 1px solid #B5D4F4; border-radius: var(--radius); padding: 20px; margin-bottom: 16px; }
   .edit-banner .card-title { color: var(--blue); }
-  .backup-bar {
-    display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
-    background: #fff; border: 1px solid var(--gray-100);
-    border-radius: var(--radius); padding: 14px 20px; margin-bottom: 16px;
-  }
+  .backup-bar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; background: #fff; border: 1px solid var(--gray-100); border-radius: var(--radius); padding: 14px 20px; margin-bottom: 16px; }
   .backup-label { font-size: 13px; color: var(--gray-400); flex: 1; min-width: 120px; }
   .empty { text-align: center; padding: 40px 20px; color: var(--gray-400); font-size: 14px; }
   .loading { text-align: center; padding: 20px; color: var(--gray-400); font-size: 13px; }
-  @media (max-width: 480px) {
-    main { padding: 16px 12px 60px; }
-    .nav-btn { padding: 12px 14px; font-size: 13px; }
-    .metric-value { font-size: 20px; }
-  }
+  .bar-wrap { background: var(--gray-100); border-radius: 99px; height: 8px; overflow: hidden; min-width: 80px; }
+  .bar-fill { height: 100%; border-radius: 99px; background: var(--green); }
+  .chart-wrap { position: relative; max-width: 340px; margin: 0 auto; padding: 16px 0; }
+  @media (max-width: 480px) { main { padding: 16px 12px 60px; } .nav-btn { padding: 12px 12px; font-size: 13px; } .metric-value { font-size: 20px; } }
 </style>
 </head>
 <body>
+
 <header>
-  <img src="logo.png" alt="Karie Anne's Logo" style="height:52px;width:52px;object-fit:contain;">
+  <img class="logo-img" src="logo.png" alt="Karie Anne's Logo">
   <div>
-    <div style="font-size:15px;font-weight:600;color:#fff;">Karie Anne's</div>
-    <div style="font-size:11px;color:#F5C800;letter-spacing:0.04em;">PRE-SCOOP PLANNER</div>
+    <span class="logo-text">Karie Anne's</span>
+    <span class="logo-sub">PRE-SCOOP PLANNER</span>
   </div>
   <div style="margin-left:auto;display:flex;align-items:center;gap:6px;">
     <div class="status-dot" id="status-dot"></div>
     <span class="status-label" id="status-label">Connecting...</span>
   </div>
 </header>
+
 <nav>
   <button class="nav-btn active" onclick="showTab('log')">Game log</button>
   <button class="nav-btn" onclick="showTab('planner')">Pre-scoop planner</button>
   <button class="nav-btn" onclick="showTab('stats')">Stats</button>
 </nav>
+
 <main>
   <div id="tab-log">
     <div class="backup-bar">
@@ -231,6 +137,7 @@ header {
       <div id="games-list"><div class="loading">Loading...</div></div>
     </div>
   </div>
+
   <div id="tab-planner" style="display:none;">
     <div class="card">
       <div class="card-title">Tonight's conditions</div>
@@ -238,114 +145,119 @@ header {
         <div class="field"><label>Expected temp (°F)</label><input type="number" id="p-temp" placeholder="74" oninput="runRec()"></div>
         <div class="field"><label>Projected attendance</label><input type="number" id="p-att" placeholder="9000" oninput="runRec()"></div>
         <div class="field"><label>Day of week</label>
-          <select id="p-dow" onchange="runRec()">
-            <option>Monday</option><option>Tuesday</option><option>Wednesday</option>
-            <option>Thursday</option><option>Friday</option><option>Saturday</option><option>Sunday</option>
-          </select>
+          <select id="p-dow" onchange="runRec()"><option>Monday</option><option>Tuesday</option><option>Wednesday</option><option>Thursday</option><option>Friday</option><option>Saturday</option><option>Sunday</option></select>
         </div>
         <div class="field"><label>Game time</label>
-          <select id="p-time" onchange="runRec()">
-            <option>Day (before 5pm)</option><option>Evening (5–7pm)</option><option>Night (after 7pm)</option>
-          </select>
+          <select id="p-time" onchange="runRec()"><option>Day (before 5pm)</option><option>Evening (5–7pm)</option><option>Night (after 7pm)</option></select>
         </div>
         <div class="field"><label>Sky condition</label>
-          <select id="p-sky" onchange="runRec()">
-            <option>Sunny</option><option>Partly cloudy</option><option>Cloudy</option><option>Overcast</option><option>Rainy</option>
-          </select>
+          <select id="p-sky" onchange="runRec()"><option>Sunny</option><option>Partly cloudy</option><option>Cloudy</option><option>Overcast</option><option>Rainy</option></select>
         </div>
       </div>
     </div>
     <div id="rec-output"></div>
   </div>
+
   <div id="tab-stats" style="display:none;">
     <div id="stats-output"><div class="empty">Log some games to see stats.</div></div>
   </div>
 </main>
+
 <script>
 const SUPABASE_URL = 'https://wiizuqrnzgvpaeuxwvjr.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndpaXp1cXJuemd2cGFldXh3dmpyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcxOTI5OTAsImV4cCI6MjA5Mjc2ODk5MH0.0BzDghC72pAXF9CA-qrmSsMniyPA8BFaGL1gDI2u9Xc';
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
 const ITEMS = [
-  { id: 'bees', name: "Bee's Knees", sizes: ['small','large'] },
-  { id: 'patriot', name: 'Patriot', sizes: ['small','large'] },
-  { id: 'dragon', name: 'Dragon Slayer', sizes: ['small','large'] },
-  { id: 'custard', name: 'Vanilla custard', sizes: ['small','large'] },
-  { id: 'custom', name: 'Custom Ice', sizes: ['small','large'], customOnly: true },
+  { id: 'bees',    name: "Bee's Knees",    sizes: ['small','large'] },
+  { id: 'patriot', name: 'Patriot',         sizes: ['small','large'] },
+  { id: 'dragon',  name: 'Dragon Slayer',   sizes: ['small','large'] },
+  { id: 'custard', name: 'Vanilla Custard', sizes: ['small','large'] },
+  { id: 'custom',  name: 'Custom Ice',      sizes: ['small','large'], customOnly: true },
 ];
 const ITEM_LABELS = ITEMS.flatMap(it => it.sizes.map(sz => ({
-  key: `${it.id}_${sz}`,
-  label: `${it.name} – ${sz.charAt(0).toUpperCase()+sz.slice(1)}`
+  key: it.id + '_' + sz,
+  label: it.name + ' – ' + sz.charAt(0).toUpperCase() + sz.slice(1),
+  itemId: it.id
 })));
-const DAYS = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+const PIE_COLORS = ['#F5C800','#1D9E75','#185FA5','#E05B2B','#9B59B6','#E74C3C','#2ECC71','#3498DB'];
+const DAYS  = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
 const TIMES = ['Day (before 5pm)','Evening (5–7pm)','Night (after 7pm)'];
 const SKIES = ['Sunny','Partly cloudy','Cloudy','Overcast','Rainy'];
-let allGames = [];
+
+let allGames  = [];
 let editingId = null;
+let pieChart  = null;
+
 async function init() {
   try {
     const { data, error } = await sb.from('games').select('*').order('date', { ascending: false });
     if (error) throw error;
     allGames = data || [];
     setStatus(true);
-    renderGames();
-    renderStats();
   } catch(e) {
     setStatus(false);
     allGames = loadLocal();
-    renderGames();
   }
+  renderGames();
+  renderStats();
   buildAddForm();
 }
+
 function setStatus(ok) {
   document.getElementById('status-dot').className = 'status-dot' + (ok ? ' connected' : '');
   document.getElementById('status-label').textContent = ok ? 'Connected' : 'Offline';
 }
 function loadLocal() { try { return JSON.parse(localStorage.getItem('ka_games')||'[]'); } catch(e) { return []; } }
 function saveLocal(g) { localStorage.setItem('ka_games', JSON.stringify(g)); }
+
 function makeFormFields(prefix, g) {
   g = g || {};
   const today = new Date().toISOString().split('T')[0];
-  return `
-    <div class="field"><label>Date</label><input type="date" id="${prefix}-date" value="${g.date||today}"></div>
-    <div class="field"><label>Day of week</label><select id="${prefix}-dow">${DAYS.map(d=>`<option${g.dow===d?' selected':''}>${d}</option>`).join('')}</select></div>
-    <div class="field"><label>Temp at game time (°F)</label><input type="number" id="${prefix}-temp" placeholder="72" value="${g.temp||''}"></div>
-    <div class="field"><label>Attendance</label><input type="number" id="${prefix}-att" placeholder="8500" value="${g.att||''}"></div>
-    <div class="field"><label>Projected attendance</label><input type="number" id="${prefix}-proj" placeholder="9000" value="${g.proj_att||''}"></div>
-    <div class="field"><label>Game time</label><select id="${prefix}-time">${TIMES.map(t=>`<option${g.game_time===t?' selected':''}>${t}</option>`).join('')}</select></div>
-    <div class="field"><label>Total sales ($)</label><input type="number" id="${prefix}-sales" placeholder="1200" value="${g.sales||''}"></div>
-    <div class="field"><label>Sky condition</label><select id="${prefix}-sky">${SKIES.map(s=>`<option${g.sky===s?' selected':''}>${s}</option>`).join('')}</select></div>`;
+  return [
+    '<div class="field"><label>Date</label><input type="date" id="'+prefix+'-date" value="'+(g.date||today)+'"></div>',
+    '<div class="field"><label>Day of week</label><select id="'+prefix+'-dow">'+DAYS.map(d=>'<option'+(g.dow===d?' selected':'')+'>'+d+'</option>').join('')+'</select></div>',
+    '<div class="field"><label>Temp at game time (°F)</label><input type="number" id="'+prefix+'-temp" placeholder="72" value="'+(g.temp||'')+'"></div>',
+    '<div class="field"><label>Attendance</label><input type="number" id="'+prefix+'-att" placeholder="8500" value="'+(g.att||'')+'"></div>',
+    '<div class="field"><label>Projected attendance</label><input type="number" id="'+prefix+'-proj" placeholder="9000" value="'+(g.proj_att||'')+'"></div>',
+    '<div class="field"><label>Game time</label><select id="'+prefix+'-time">'+TIMES.map(t=>'<option'+(g.game_time===t?' selected':'')+'>'+t+'</option>').join('')+'</select></div>',
+    '<div class="field"><label>Total sales ($)</label><input type="number" id="'+prefix+'-sales" placeholder="1200" value="'+(g.sales||'')+'"></div>',
+    '<div class="field"><label>Sky condition</label><select id="'+prefix+'-sky">'+SKIES.map(s=>'<option'+(g.sky===s?' selected':'')+'>'+s+'</option>').join('')+'</select></div>',
+  ].join('');
 }
+
 function makeFlavorFields(prefix, qtys) {
   qtys = qtys || {};
-  return ITEM_LABELS.map(it => `
-    <div class="flavor-row">
-      <label>${it.label}</label>
-      <input type="number" id="${prefix}-qty-${it.key}" min="0" placeholder="0" value="${qtys[it.key]||''}">
-    </div>`).join('');
+  return ITEM_LABELS.map(it =>
+    '<div class="flavor-row"><label>'+it.label+'</label><input type="number" id="'+prefix+'-qty-'+it.key+'" min="0" placeholder="0" value="'+(qtys[it.key]||'')+'"></div>'
+  ).join('');
 }
+
 function buildAddForm() {
   document.getElementById('add-form-grid').innerHTML = makeFormFields('log', null);
   document.getElementById('add-flavor-grid').innerHTML = makeFlavorFields('log', null);
   const d = new Date();
   document.getElementById('log-dow').value = DAYS[d.getDay()===0?6:d.getDay()-1];
 }
+
 function readForm(prefix) {
-  const date = document.getElementById(`${prefix}-date`).value;
-  const temp = parseFloat(document.getElementById(`${prefix}-temp`).value);
-  const att = parseInt(document.getElementById(`${prefix}-att`).value);
+  const date = document.getElementById(prefix+'-date').value;
+  const temp = parseFloat(document.getElementById(prefix+'-temp').value);
+  const att  = parseInt(document.getElementById(prefix+'-att').value);
   if (!date || isNaN(temp) || isNaN(att)) return null;
   const qtys = {};
-  ITEM_LABELS.forEach(it => { qtys[it.key] = parseInt(document.getElementById(`${prefix}-qty-${it.key}`).value)||0; });
+  ITEM_LABELS.forEach(it => { qtys[it.key] = parseInt(document.getElementById(prefix+'-qty-'+it.key).value)||0; });
   return {
     date, temp, att,
-    proj_att: parseInt(document.getElementById(`${prefix}-proj`).value)||att,
-    dow: document.getElementById(`${prefix}-dow`).value,
-    game_time: document.getElementById(`${prefix}-time`).value,
-    sky: document.getElementById(`${prefix}-sky`).value,
-    sales: parseFloat(document.getElementById(`${prefix}-sales`).value)||0,
+    proj_att:  parseInt(document.getElementById(prefix+'-proj').value)||att,
+    dow:       document.getElementById(prefix+'-dow').value,
+    game_time: document.getElementById(prefix+'-time').value,
+    sky:       document.getElementById(prefix+'-sky').value,
+    sales:     parseFloat(document.getElementById(prefix+'-sales').value)||0,
     qtys
   };
 }
+
 async function logGame() {
   const g = readForm('log');
   if (!g) { alert('Please fill in date, temp, and attendance.'); return; }
@@ -363,14 +275,16 @@ async function logGame() {
   renderGames(); runRec(); renderStats();
   buildAddForm();
 }
+
 function editGame(id) {
   editingId = id;
   const g = allGames.find(x => x.id === id);
   document.getElementById('edit-form-grid').innerHTML = makeFormFields('edit', g);
   document.getElementById('edit-flavor-grid').innerHTML = makeFlavorFields('edit', g.qtys);
   document.getElementById('edit-banner').style.display = 'block';
-  document.getElementById('edit-banner').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  document.getElementById('edit-banner').scrollIntoView({ behavior:'smooth', block:'start' });
 }
+
 async function saveEdit() {
   const g = readForm('edit');
   if (!g) { alert('Please fill in date, temp, and attendance.'); return; }
@@ -384,10 +298,12 @@ async function saveEdit() {
   cancelEdit();
   renderGames(); runRec(); renderStats();
 }
+
 function cancelEdit() {
   editingId = null;
   document.getElementById('edit-banner').style.display = 'none';
 }
+
 async function deleteGame(id) {
   try {
     const { error } = await sb.from('games').delete().eq('id', id);
@@ -398,28 +314,30 @@ async function deleteGame(id) {
   if (editingId === id) cancelEdit();
   renderGames(); runRec(); renderStats();
 }
+
 function tempClass(t) { return t>=80?'hot':t>=68?'warm':t>=55?'cool':'cold'; }
-function tempTag(t) { const c=tempClass(t); return `<span class="tag tag-${c}">${c}</span>`; }
+function tempTag(t)   { const c=tempClass(t); return '<span class="tag tag-'+c+'">'+c+'</span>'; }
+
 function renderGames() {
   document.getElementById('game-count').textContent = allGames.length;
   const el = document.getElementById('games-list');
-  if (!allGames.length) { el.innerHTML = '<div class="empty">No games logged yet. Add your first game above.</div>'; return; }
-  el.innerHTML = `<div style="overflow-x:auto;"><table>
-    <colgroup><col style="width:95px"><col style="width:80px"><col style="width:90px"><col style="width:72px"><col style="width:78px"><col style="width:64px"></colgroup>
-    <thead><tr><th>Date</th><th>Day</th><th>Temp</th><th>Att.</th><th>Sales</th><th></th></tr></thead>
-    <tbody>${allGames.map(g => `<tr>
-      <td style="font-family:'DM Mono',monospace;font-size:12px;">${g.date}</td>
-      <td style="font-size:12px;">${g.dow}</td>
-      <td>${g.temp}°F ${tempTag(g.temp)}</td>
-      <td>${Number(g.att).toLocaleString()}</td>
-      <td>$${Number(g.sales).toLocaleString()}</td>
-      <td><span style="display:flex;gap:4px;">
-        <button class="btn-icon edit" onclick="editGame('${g.id}')">✎</button>
-        <button class="btn-icon del" onclick="deleteGame('${g.id}')">✕</button>
-      </span></td>
-    </tr>`).join('')}</tbody>
-  </table></div>`;
+  if (!allGames.length) { el.innerHTML='<div class="empty">No games logged yet. Add your first game above.</div>'; return; }
+  el.innerHTML = '<div style="overflow-x:auto;"><table>' +
+    '<colgroup><col style="width:95px"><col style="width:80px"><col style="width:90px"><col style="width:72px"><col style="width:78px"><col style="width:64px"></colgroup>' +
+    '<thead><tr><th>Date</th><th>Day</th><th>Temp</th><th>Att.</th><th>Sales</th><th></th></tr></thead><tbody>' +
+    allGames.map(g =>
+      '<tr><td style="font-family:\'DM Mono\',monospace;font-size:12px;">'+g.date+'</td>' +
+      '<td style="font-size:12px;">'+g.dow+'</td>' +
+      '<td>'+g.temp+'°F '+tempTag(g.temp)+'</td>' +
+      '<td>'+Number(g.att).toLocaleString()+'</td>' +
+      '<td>$'+Number(g.sales).toLocaleString()+'</td>' +
+      '<td><span style="display:flex;gap:4px;">' +
+        '<button class="btn-icon edit" onclick="editGame(\''+g.id+'\')">✎</button>' +
+        '<button class="btn-icon del"  onclick="deleteGame(\''+g.id+'\')">✕</button>' +
+      '</span></td></tr>'
+    ).join('') + '</tbody></table></div>';
 }
+
 function getSimilarGames(temp, att, dow, time, sky) {
   if (!allGames.length) return [];
   const scored = allGames.map(g => {
@@ -429,9 +347,7 @@ function getSimilarGames(temp, att, dow, time, sky) {
     const aDiff = Math.abs(g.att - att)/(att||1);
     score += aDiff<0.1?3:aDiff<0.2?2:aDiff<0.35?1:0;
     if (g.dow===dow) score+=2;
-    const isWE=['Friday','Saturday','Sunday'].includes(dow);
-    const gWE=['Friday','Saturday','Sunday'].includes(g.dow);
-    if (isWE===gWE) score+=1;
+    if (['Friday','Saturday','Sunday'].includes(dow) === ['Friday','Saturday','Sunday'].includes(g.dow)) score+=1;
     if (g.game_time===time) score+=1;
     if (g.sky===sky) score+=1;
     return { g, score };
@@ -439,87 +355,135 @@ function getSimilarGames(temp, att, dow, time, sky) {
   scored.sort((a,b)=>b.score-a.score);
   return scored.slice(0, Math.min(5, scored.length)).map(s=>({game:s.g, score:s.score}));
 }
+
 function runRec() {
   const el = document.getElementById('rec-output');
   if (!el) return;
   const temp = parseFloat(document.getElementById('p-temp').value);
-  const att = parseInt(document.getElementById('p-att').value);
-  const dow = document.getElementById('p-dow').value;
+  const att  = parseInt(document.getElementById('p-att').value);
+  const dow  = document.getElementById('p-dow').value;
   const time = document.getElementById('p-time').value;
-  const sky = document.getElementById('p-sky').value;
+  const sky  = document.getElementById('p-sky').value;
   if (!allGames.length) { el.innerHTML='<div class="notice">Log at least one game to get recommendations.</div>'; return; }
   if (isNaN(temp)||isNaN(att)) { el.innerHTML='<div class="notice">Enter tonight\'s temperature and attendance above.</div>'; return; }
   const similar = getSimilarGames(temp, att, dow, time, sky);
-  const totalWeight = similar.reduce((s,x)=>s+x.score,0);
+  const totalWeight = similar.reduce((s,x)=>s+x.score, 0);
   const recs = {};
   ITEM_LABELS.forEach(it => {
     if (!totalWeight) { recs[it.key]=0; return; }
-    const wtdAvg = similar.reduce((s,x)=>s+((x.game.qtys&&x.game.qtys[it.key])||0)*x.score,0)/totalWeight;
+    const wtdAvg = similar.reduce((s,x)=>s+((x.game.qtys&&x.game.qtys[it.key])||0)*x.score, 0)/totalWeight;
     const attRatio = att/(similar[0]?.game?.att||att);
     const tf = temp>=80?1.15:temp>=68?1.0:temp>=55?0.7:0.35;
     recs[it.key] = Math.round(wtdAvg*Math.min(attRatio,1.4)*tf);
   });
-  const totalScoops = Object.values(recs).reduce((s,v)=>s+v,0);
-  const confText = similar.length>=3?`Based on ${similar.length} similar games`:similar.length===1?'Based on 1 similar game — log more for better accuracy':`Based on ${similar.length} similar games`;
-  const cards = ITEMS.map(it=>`<div class="rec-card">
-    <div class="rec-card-title">${it.name}</div>
-    ${it.sizes.map(sz=>`<div class="rec-row"><span>${sz.charAt(0).toUpperCase()+sz.slice(1)}</span><span class="rec-qty">${recs[`${it.id}_${sz}`]}</span></div>`).join('')}
-  </div>`).join('');
-  el.innerHTML=`
-    <div class="metric-grid">
-      <div class="metric"><div class="metric-label">Total pre-scoops</div><div class="metric-value">${totalScoops}</div></div>
-      <div class="metric"><div class="metric-label">Temp</div><div class="metric-value" style="font-size:15px;padding-top:6px;">${tempTag(temp)}</div></div>
-      <div class="metric"><div class="metric-label">Similar games</div><div class="metric-value">${similar.length}</div></div>
-    </div>
-    <div class="notice">${confText}. Recommendations improve as you log more games.</div>
-    <div style="font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--gray-400);margin-bottom:12px;">Pre-scoop quantities</div>
-    <div class="rec-grid">${cards}</div>
-    <p style="font-size:12px;color:var(--gray-400);margin-top:14px;">Custom flavor orders made to order. Only pre-scoop the three combos and custard.</p>`;
+  const totalScoops = ITEMS.filter(it=>!it.customOnly).reduce((s,it)=>s+it.sizes.reduce((ss,sz)=>ss+(recs[it.id+'_'+sz]||0),0),0);
+  const confText = similar.length>=3?'Based on '+similar.length+' similar games':similar.length===1?'Based on 1 similar game — log more for accuracy':'Based on '+similar.length+' similar games';
+  const cards = ITEMS.filter(it=>!it.customOnly).map(it=>
+    '<div class="rec-card"><div class="rec-card-title">'+it.name+'</div>' +
+    it.sizes.map(sz=>'<div class="rec-row"><span>'+sz.charAt(0).toUpperCase()+sz.slice(1)+'</span><span class="rec-qty">'+(recs[it.id+'_'+sz]||0)+'</span></div>').join('') +
+    '</div>'
+  ).join('');
+  el.innerHTML =
+    '<div class="metric-grid">' +
+      '<div class="metric"><div class="metric-label">Total pre-scoops</div><div class="metric-value">'+totalScoops+'</div></div>' +
+      '<div class="metric"><div class="metric-label">Temp</div><div class="metric-value" style="font-size:15px;padding-top:6px;">'+tempTag(temp)+'</div></div>' +
+      '<div class="metric"><div class="metric-label">Similar games</div><div class="metric-value">'+similar.length+'</div></div>' +
+    '</div>' +
+    '<div class="notice">'+confText+'. Recommendations improve as you log more games.</div>' +
+    '<div style="font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--gray-400);margin-bottom:12px;">Pre-scoop quantities</div>' +
+    '<div class="rec-grid">'+cards+'</div>' +
+    '<p style="font-size:12px;color:var(--gray-400);margin-top:14px;">Custom Ice orders are made to order only and not included in pre-scoop totals.</p>';
 }
+
 function renderStats() {
   const el = document.getElementById('stats-output');
-  if (!el || !allGames.length) { if(el) el.innerHTML='<div class="empty">Log some games to see stats.</div>'; return; }
-  const avgSales = allGames.reduce((s,g)=>s+g.sales,0)/allGames.length;
-  const bestGame = allGames.reduce((b,g)=>g.sales>b.sales?g:b,allGames[0]);
-  const bestItem = ITEM_LABELS.reduce((best,it)=>{ const tot=allGames.reduce((s,g)=>s+((g.qtys&&g.qtys[it.key])||0),0); return tot>best.tot?{it,tot}:best; },{it:ITEM_LABELS[0],tot:0});
-  el.innerHTML=`
-    <div class="metric-grid">
-      <div class="metric"><div class="metric-label">Games logged</div><div class="metric-value">${allGames.length}</div></div>
-      <div class="metric"><div class="metric-label">Avg sales</div><div class="metric-value">$${Math.round(avgSales).toLocaleString()}</div></div>
-      <div class="metric"><div class="metric-label">Best game</div><div class="metric-value">$${bestGame.sales.toLocaleString()}</div></div>
-      <div class="metric"><div class="metric-label">Top item</div><div class="metric-value" style="font-size:13px;padding-top:6px;">${bestItem.it.label}</div></div>
-    </div>
-    <div class="card">
-      <div class="card-title">All games</div>
-      <div style="overflow-x:auto;"><table>
-        <thead><tr><th>Date</th><th>Day</th><th>Temp</th><th>Att.</th><th>Sales</th><th>Sky</th></tr></thead>
-        <tbody>${allGames.map(g=>`<tr>
-          <td style="font-family:'DM Mono',monospace;font-size:12px;">${g.date}</td>
-          <td style="font-size:12px;">${g.dow}</td>
-          <td>${g.temp}°F ${tempTag(g.temp)}</td>
-          <td>${Number(g.att).toLocaleString()}</td>
-          <td>$${Number(g.sales).toLocaleString()}</td>
-          <td style="font-size:12px;">${g.sky||'—'}</td>
-        </tr>`).join('')}</tbody>
-      </table></div>
-    </div>`;
-}
-function showTab(t) {
-  ['log','planner','stats'].forEach((tab,i)=>{
-    document.getElementById(`tab-${tab}`).style.display=tab===t?'block':'none';
-    document.querySelectorAll('.nav-btn')[i].classList.toggle('active',tab===t);
+  if (!el) return;
+  if (!allGames.length) { el.innerHTML='<div class="empty">Log some games to see stats.</div>'; return; }
+
+  const avgSales     = allGames.reduce((s,g)=>s+g.sales,0)/allGames.length;
+  const bestGame     = allGames.reduce((b,g)=>g.sales>b.sales?g:b, allGames[0]);
+  const totalRevenue = allGames.reduce((s,g)=>s+g.sales,0);
+
+  const itemTotals = ITEM_LABELS.map(it => {
+    const total = allGames.reduce((s,g)=>s+((g.qtys&&g.qtys[it.key])||0), 0);
+    return { ...it, total, avg: total/allGames.length };
   });
-  if(t==='planner') runRec();
-  if(t==='stats') renderStats();
+  const grandTotal = itemTotals.reduce((s,it)=>s+it.total, 0);
+
+  const pieData = ITEMS.map((item,i) => {
+    const total = item.sizes.reduce((s,sz)=>{ const f=itemTotals.find(it=>it.key===item.id+'_'+sz); return s+(f?f.total:0); },0);
+    return { name: item.name, total, color: PIE_COLORS[i] };
+  }).filter(d=>d.total>0);
+
+  el.innerHTML =
+    '<div class="metric-grid">' +
+      '<div class="metric"><div class="metric-label">Games logged</div><div class="metric-value">'+allGames.length+'</div></div>' +
+      '<div class="metric"><div class="metric-label">Total revenue</div><div class="metric-value">$'+Math.round(totalRevenue).toLocaleString()+'</div></div>' +
+      '<div class="metric"><div class="metric-label">Avg sales/game</div><div class="metric-value">$'+Math.round(avgSales).toLocaleString()+'</div></div>' +
+      '<div class="metric"><div class="metric-label">Best game</div><div class="metric-value">$'+bestGame.sales.toLocaleString()+'</div></div>' +
+    '</div>' +
+    '<div class="card"><div class="card-title">Units sold by item — season totals</div>' +
+      '<table><thead><tr><th>Item</th><th>Total sold</th><th>Avg / game</th><th style="min-width:120px;">Share</th></tr></thead><tbody>' +
+      itemTotals.map(it => {
+        const pct = grandTotal>0?Math.round(it.total/grandTotal*100):0;
+        return '<tr><td>'+it.label+'</td><td><strong>'+it.total+'</strong></td><td>'+it.avg.toFixed(1)+'</td>' +
+          '<td><div style="display:flex;align-items:center;gap:8px;"><div class="bar-wrap" style="flex:1;"><div class="bar-fill" style="width:'+pct+'%;"></div></div><span style="font-size:12px;color:var(--gray-400);width:34px;text-align:right;">'+pct+'%</span></div></td></tr>';
+      }).join('') +
+      '</tbody></table></div>' +
+    '<div class="card"><div class="card-title">Sales mix — all time</div>' +
+      '<div class="chart-wrap"><canvas id="pie-chart"></canvas></div>' +
+    '</div>' +
+    '<div class="card"><div class="card-title">All games</div>' +
+      '<div style="overflow-x:auto;"><table><thead><tr><th>Date</th><th>Day</th><th>Temp</th><th>Att.</th><th>Sales</th><th>Sky</th></tr></thead><tbody>' +
+      allGames.map(g=>
+        '<tr><td style="font-family:\'DM Mono\',monospace;font-size:12px;">'+g.date+'</td>' +
+        '<td style="font-size:12px;">'+g.dow+'</td>' +
+        '<td>'+g.temp+'°F '+tempTag(g.temp)+'</td>' +
+        '<td>'+Number(g.att).toLocaleString()+'</td>' +
+        '<td>$'+Number(g.sales).toLocaleString()+'</td>' +
+        '<td style="font-size:12px;">'+(g.sky||'—')+'</td></tr>'
+      ).join('') +
+      '</tbody></table></div></div>';
+
+  setTimeout(() => {
+    const ctx = document.getElementById('pie-chart');
+    if (!ctx || !window.Chart) return;
+    if (pieChart) { pieChart.destroy(); pieChart = null; }
+    pieChart = new Chart(ctx, {
+      type: 'doughnut',
+      data: {
+        labels: pieData.map(d=>d.name),
+        datasets: [{ data: pieData.map(d=>d.total), backgroundColor: pieData.map(d=>d.color), borderWidth: 2, borderColor: '#fff' }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { position: 'bottom', labels: { font: { family:'DM Sans', size:12 }, padding:16, boxWidth:12 } },
+          tooltip: { callbacks: { label: ctx => ' '+ctx.label+': '+ctx.raw+' units ('+Math.round(ctx.raw/grandTotal*100)+'%)' } }
+        }
+      }
+    });
+  }, 150);
 }
+
+function showTab(t) {
+  ['log','planner','stats'].forEach((tab,i) => {
+    document.getElementById('tab-'+tab).style.display = tab===t ? 'block' : 'none';
+    document.querySelectorAll('.nav-btn')[i].classList.toggle('active', tab===t);
+  });
+  if (t==='planner') runRec();
+  if (t==='stats')   renderStats();
+}
+
 function exportData() {
   if (!allGames.length) { alert('No games to export yet.'); return; }
   const blob = new Blob([JSON.stringify({version:1,exported:new Date().toISOString(),games:allGames},null,2)],{type:'application/json'});
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
-  a.download = `karie-annes-${new Date().toISOString().split('T')[0]}.json`;
+  a.download = 'karie-annes-'+new Date().toISOString().split('T')[0]+'.json';
   a.click();
 }
+
 function importData(e) {
   const file = e.target.files[0];
   if (!file) return;
@@ -535,24 +499,26 @@ function importData(e) {
         if (!dupe) {
           const clean = {
             date: g.date, temp: g.temp, att: g.att,
-            proj_att: g.proj_att || g.projAtt || g.att,
-            dow: g.dow, game_time: g.game_time || g.time,
-            sky: g.sky, sales: g.sales, qtys: g.qtys || {}
+            proj_att:  g.proj_att || g.projAtt || g.att,
+            dow:       g.dow,
+            game_time: g.game_time || g.time,
+            sky:       g.sky,
+            sales:     g.sales,
+            qtys:      g.qtys || {}
           };
           const { data: d2, error } = await sb.from('games').insert([clean]).select();
-          if (!error && d2) {
-            allGames.unshift(d2[0]);
-          }
+          if (!error && d2) allGames.unshift(d2[0]);
           added++;
         }
       }
       renderGames(); renderStats();
-      alert(`Done! ${added} game(s) imported to database.`);
-    } catch(err) { alert('Could not read file: ' + err.message); }
+      alert('Done! '+added+' game(s) imported to database.');
+    } catch(err) { alert('Could not read file: '+err.message); }
   };
   reader.readAsText(file);
-  e.target.value='';
+  e.target.value = '';
 }
+
 init();
 </script>
 </body>
